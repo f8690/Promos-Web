@@ -88,7 +88,7 @@ class RedeemAPI {
       // Lookup code in database.
       $user_id = 0;
       $stmt = $this->db->prepare("SELECT id, unlock_code, uses_remaining FROM rw_promo_code WHERE rw_app_id = ? AND code = ?");
-      $stmt->bind_param('is', $rw_app_id, $uses_remaining);
+      $stmt->bind_param('is', $rw_app_id, $code);
       $stmt->execute();
       $stmt->bind_result($id, $unlock_code, $uses_remaining);
       while ($stmt->fetch()) {
@@ -98,13 +98,13 @@ class RedeemAPI {
       
       // Bail if code does not exist.
       if ($id <= 0) {
-        sendResponse(400, 'Invalid code');
+        sendResponse(400, 'Invalid code: ' . $code);
         return FALSE;
       }
       
       // Bail if code already used.
       if ($uses_remaining <= 0) {
-        sendResponse(403, 'code already used');
+        sendResponse(403, 'Code already used: ' . $code);
         return FALSE;
       }
       
@@ -119,7 +119,7 @@ class RedeemAPI {
       
       // Bail if already redeemed.
       if ($redeemed_id) {
-        sendResponse(403, 'Code already used');
+        sendResponse(403, 'Code already used: ' . $code);
         return FALSE;
       }
       
